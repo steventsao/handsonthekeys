@@ -4,20 +4,30 @@
   height: 100%;
   min-width: 0;
   min-height: 0;
-  grid-template-rows: auto minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr);
   overflow: hidden;
   background: var(--studio-bg);
 }
 
 .learning-app-header {
-  position: sticky;
-  top: 0;
-  z-index: 40;
+  position: fixed;
+  z-index: 80;
+  right: auto;
+  bottom: calc(4.4rem + env(safe-area-inset-bottom));
+  left: 50%;
+  width: max-content;
+  max-width: calc(100vw - 1rem);
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  pointer-events: none;
+  transform: translateX(-50%);
 }
 
 .learning-app-header .learning-mode-switch {
-  grid-column: 2;
-  justify-self: center;
+  pointer-events: auto;
 }
 
 .learning-mode-surface {
@@ -57,69 +67,90 @@
 }
 
 .learning-header {
-  position: sticky;
-  top: 0;
-  z-index: 20;
-  display: grid;
-  grid-template-columns: minmax(12rem, 1fr) auto minmax(12rem, 1fr);
-  align-items: center;
-  gap: 1rem;
-  min-height: 3.55rem;
-  padding: 0.4rem 0.75rem;
-  border-bottom: 1px solid var(--studio-line);
-  background: rgba(24, 27, 31, 0.97);
-  box-shadow: 0 0.8rem 2.4rem rgba(0, 0, 0, 0.2);
-  backdrop-filter: blur(1rem);
+  display: flex;
+  justify-content: center;
 }
 
 .learning-mode-switch {
   display: inline-grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 0.2rem;
-  padding: 0.24rem;
-  border: 1px solid var(--studio-line);
-  border-radius: 0.68rem;
-  background: var(--studio-panel-high);
+  gap: 0.25rem;
+  padding: 0.34rem;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 1.15rem;
+  background: rgba(24, 27, 33, 0.72);
+  box-shadow:
+    0 1.25rem 3.5rem rgba(0, 0, 0, 0.48),
+    0 0.15rem 0.55rem rgba(0, 0, 0, 0.35),
+    inset 0 1px rgba(255, 255, 255, 0.13);
+  backdrop-filter: blur(1.25rem) saturate(155%);
+  -webkit-backdrop-filter: blur(1.25rem) saturate(155%);
 }
 
 .learning-mode-switch button {
-  min-height: 2.3rem;
-  border-radius: 0.48rem;
+  position: relative;
+  min-width: 5.4rem;
+  min-height: 2.75rem;
+  border: 1px solid transparent;
+  border-radius: 0.82rem;
   padding: 0 0.9rem;
   background: transparent;
-  color: var(--studio-muted);
+  color: #aeb5bf;
   font-size: 0.75rem;
   font-weight: 800;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.055em;
   white-space: nowrap;
+  transition:
+    color 160ms ease,
+    background 160ms ease,
+    border-color 160ms ease,
+    box-shadow 160ms ease,
+    transform 160ms ease;
+}
+
+.learning-mode-switch button:hover {
+  background: rgba(255, 255, 255, 0.075);
+  color: #f2f5f8;
+}
+
+.learning-mode-switch button:active {
+  transform: translateY(1px);
+}
+
+.learning-mode-switch button:focus-visible {
+  outline: 2px solid rgba(115, 184, 255, 0.92);
+  outline-offset: 2px;
 }
 
 .learning-mode-switch button.active {
-  background: var(--studio-accent-strong);
-  box-shadow: 0 0.45rem 1.4rem rgba(32, 98, 166, 0.32);
+  border-color: rgba(143, 202, 255, 0.34);
+  background: linear-gradient(180deg, rgba(74, 157, 245, 0.98), rgba(40, 112, 207, 0.94));
+  box-shadow:
+    0 0.5rem 1.35rem rgba(19, 90, 177, 0.38),
+    inset 0 1px rgba(255, 255, 255, 0.28);
   color: #fff;
 }
 
 .learning-app-shell[data-mode="session"] .learning-header {
-  border-color: #343431;
-  background: #1c1c1b;
-  box-shadow: none;
-  backdrop-filter: none;
-}
-
-.learning-app-shell[data-mode="session"] .learning-mode-switch {
-  border-color: #44443f;
-  border-radius: 0;
   background: transparent;
 }
 
+.learning-app-shell[data-mode="session"] .learning-mode-switch {
+  border-color: rgba(255, 255, 255, 0.22);
+  border-radius: 1.15rem;
+  background: rgba(26, 26, 25, 0.74);
+}
+
 .learning-app-shell[data-mode="session"] .learning-mode-switch button {
-  border-radius: 0;
+  border-radius: 0.82rem;
 }
 
 .learning-app-shell[data-mode="session"] .learning-mode-switch button.active {
-  background: #cf3f31;
-  box-shadow: none;
+  border-color: rgba(255, 176, 166, 0.28);
+  background: linear-gradient(180deg, #e34d3d, #b92f25);
+  box-shadow:
+    0 0.5rem 1.35rem rgba(128, 30, 23, 0.38),
+    inset 0 1px rgba(255, 255, 255, 0.24);
 }
 
 .session-shell {
@@ -133,7 +164,7 @@
   display: grid;
   grid-template-rows: auto minmax(20rem, 1fr) auto;
   gap: clamp(1rem, 2.2vw, 1.8rem);
-  min-height: calc(100dvh - 3.55rem);
+  min-height: 100dvh;
   box-sizing: border-box;
   padding: clamp(1rem, 2.6vw, 2.4rem);
   overflow: auto;
@@ -664,7 +695,7 @@
 .learning-layout {
   display: grid;
   grid-template-columns: minmax(15.5rem, 19rem) minmax(0, 1fr);
-  min-height: calc(100dvh - 3.55rem);
+  min-height: 100dvh;
 }
 
 .lesson-setup {
@@ -1190,15 +1221,11 @@
   }
 
   .learning-header {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 0.55rem;
-    padding: 0.5rem;
+    max-width: calc(100vw - 1rem);
   }
 
   .learning-header .learning-mode-switch {
-    width: 100%;
-    grid-column: 1;
-    justify-self: stretch;
+    width: auto;
   }
 
   .learning-layout {
@@ -1208,7 +1235,7 @@
   }
 
   .session-stage {
-    min-height: calc(100dvh - 3.75rem);
+    min-height: 100dvh;
     grid-template-rows: auto auto auto;
   }
 
@@ -1270,18 +1297,20 @@
   }
 
   .learning-mode-switch button {
+    min-width: 0;
     min-height: 2.75rem;
     padding-inline: 0.42rem;
   }
 
-  .learning-header {
-    min-height: 3.75rem;
+  .learning-app-header {
+    bottom: calc(4.2rem + env(safe-area-inset-bottom));
+    width: calc(100vw - 1rem);
   }
 
   .session-stage {
     grid-template-rows: auto auto auto;
     align-content: start;
-    min-height: calc(100dvh - 3.75rem);
+    min-height: 100dvh;
     gap: 0.85rem;
     padding: 0.8rem;
   }
@@ -1389,7 +1418,7 @@
 
   .learning-transport {
     position: sticky;
-    top: 3.75rem;
+    top: 0;
     z-index: 10;
     flex-wrap: wrap;
     box-shadow: 0 0.7rem 1.8rem rgba(0, 0, 0, 0.32);
@@ -1444,7 +1473,7 @@
   }
 
   .studio-topbar {
-    top: 3.75rem;
+    top: 0;
     grid-template-columns: minmax(0, 1fr);
   }
 
@@ -1485,11 +1514,15 @@
   .learning-mode-surface > .learning-shell,
   .learning-mode-surface > .studio-shell {
     height: auto;
-    min-height: calc(100dvh - 3.75rem);
+    min-height: 100dvh;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .learning-mode-switch button {
+    transition: none;
+  }
+
   .tab-note,
   .tab-playhead {
     transition: none;

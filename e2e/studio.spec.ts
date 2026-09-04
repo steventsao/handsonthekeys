@@ -1641,7 +1641,18 @@ test("Session, Tab, and Studio keep one stable outer mode shell", async ({ page 
   const measureShell = () =>
     modeShell.evaluate((element) => {
       const rect = element.getBoundingClientRect()
-      return { top: rect.top, left: rect.left, width: rect.width, height: rect.height, bottom: rect.bottom }
+      const style = getComputedStyle(element)
+      const dock = element.querySelector<HTMLElement>(".learning-mode-switch")
+      const dockStyle = dock === null ? null : getComputedStyle(dock)
+      return {
+        top: rect.top,
+        left: rect.left,
+        width: rect.width,
+        height: rect.height,
+        bottom: rect.bottom,
+        position: style.position,
+        backdropFilter: dockStyle?.backdropFilter ?? "none"
+      }
     })
 
   await expect(modeShell).toBeVisible()
@@ -1655,7 +1666,10 @@ test("Session, Tab, and Studio keep one stable outer mode shell", async ({ page 
   await expect(page.getByRole("button", { name: "TAB MODE" })).toHaveAttribute("aria-pressed", "true")
 
   const tabShell = await measureShell()
-  expect(tabShell.top).toBe(0)
+  expect(tabShell.position).toBe("fixed")
+  expect(tabShell.bottom).toBeLessThan(844)
+  expect(tabShell.bottom).toBeGreaterThan(700)
+  expect(tabShell.backdropFilter).not.toBe("none")
 
   await page.getByRole("button", { name: "STUDIO MODE" }).click()
   await expect(page).toHaveURL(/\/\?mode=daw&song=afterglow$/)
@@ -1671,7 +1685,7 @@ test("Session, Tab, and Studio keep one stable outer mode shell", async ({ page 
     .locator(".studio-topbar")
     .evaluate((element) => element.getBoundingClientRect().top)
   expect(dawShell).toEqual(tabShell)
-  expect(dawToolbarTop).toBeGreaterThanOrEqual(dawShell.bottom - 1)
+  expect(dawToolbarTop).toBe(0)
 
   await page.getByRole("button", { name: "SESSION MODE" }).click()
   await expect(page).toHaveURL(/\/\?mode=session&song=afterglow$/)
