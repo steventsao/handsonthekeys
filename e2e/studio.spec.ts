@@ -1971,17 +1971,8 @@ test("Studio contains its timeline and exposes touch-sized controls on a phone",
   expect(layout.stageGuide.height).toBeGreaterThanOrEqual(44)
   expect(layout.timeline.scrollWidth).toBeGreaterThan(layout.timeline.clientWidth)
   expect(layout.timeline.controlsWidth).toBeLessThanOrEqual(120)
-
-  const libraryToggle = page.getByRole("button", { name: "LIBRARY" })
-  await expect(libraryToggle).toBeVisible()
-  await libraryToggle.click()
-  await expect(page.getByRole("button", { name: "Close sound library" }).last()).toBeVisible()
-  const drawer = await page.locator(".library-panel.mobile-open").evaluate((element) => {
-    const rect = element.getBoundingClientRect()
-    return { left: rect.left, right: rect.right }
-  })
-  expect(drawer.left).toBeGreaterThanOrEqual(0)
-  expect(drawer.right).toBeLessThanOrEqual(390)
+  await expect(page.locator(".library-panel")).toHaveCount(0)
+  await expect(page.getByRole("button", { name: "LIBRARY" })).toHaveCount(0)
 })
 
 test("WebMCP stages an exact key change and a browser-local karaoke guide", async ({ page }) => {
@@ -2946,7 +2937,7 @@ test("Studio keeps its Logic-inspired dark palette and reserves text cursors for
       regionBackgrounds: regions.map((region) => getComputedStyle(region).backgroundColor),
       coloredControlCount: coloredControls.length,
       cursorViolations: Array.from(cursorViolations),
-      label: styleOf(".panel-title"),
+      label: styleOf(".arrangement-toolbar"),
       prompt: styleOf('.magic-copy input[aria-label="Describe the part to create"]'),
       action: styleOf(".ask-button"),
       editor: styleOf("daw-editor")

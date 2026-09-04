@@ -3,11 +3,10 @@ import type { BrowserMetronomeSnapshot } from "./browserMetronome.ts"
 import { DawTimeline, type DawTimelineHandle } from "./DawTimeline.tsx"
 import type { InstrumentLearningState, LearningTransportController } from "./InstrumentLearning.ts"
 import { initialStudioState, midiName, type StudioClip } from "./Studio.ts"
-import { readAudioDuration, registerUploadedAudio, resolveClipAudioUrl } from "./audioAssets.ts"
+import { resolveClipAudioUrl } from "./audioAssets.ts"
 import { initialBrowserRecordingState, type BrowserRecordingTake } from "./BrowserRecording.ts"
 import type { StudioShareReceipt } from "./StudioShareApi.ts"
 import {
-  addStudioUpload,
   attachLearningTransport,
   applyStudioPreview,
   controlInstrumentLearningTransport,
@@ -80,13 +79,6 @@ const downloadBlob = (blob: Blob, name: string) => {
   window.setTimeout(() => URL.revokeObjectURL(url), 1_000)
 }
 
-const assetMeta = (clip: StudioClip, bpm: number): string => {
-  if (clip.kind === "audio") return "AUDIO · SESSION ASSET"
-  const sound = clip.source.kind === "upload" ? "MIDI" : clip.source.sound.toUpperCase()
-  const program = String((clip.midiProgram ?? 0) + 1).padStart(3, "0")
-  return `${sound} · GM ${program} · ${bpm} BPM`
-}
-
 interface StudioAppProps {
   readonly learning: InstrumentLearningState
   readonly active: boolean
@@ -141,14 +133,12 @@ export const StudioApp = ({
   const [shareReceipt, setShareReceipt] = useState<StudioShareReceipt | null>(null)
   const [shareCopied, setShareCopied] = useState(false)
   const [auditioning, setAuditioning] = useState<string | null>(null)
-  const [mobileLibraryOpen, setMobileLibraryOpen] = useState(false)
   const presentation = useSyncExternalStore(
     subscribeStudioPresentation,
     getStudioPresentationView,
     getStudioPresentationView
   )
   const timelineRef = useRef<DawTimelineHandle>(null)
-  const uploadRef = useRef<HTMLInputElement>(null)
   const auditionRef = useRef<HTMLAudioElement | null>(null)
   const playheadRef = useRef(0)
   const playheadBeatRef = useRef(playheadBeat)
@@ -276,18 +266,6 @@ export const StudioApp = ({
     []
   )
 
-  const committedClips = useMemo(
-    () => state.tracks.reduce((count, track) => count + track.clips.length, 0),
-    [state.tracks]
-  )
-  const midiNoteCount = useMemo(
-    () =>
-      state.tracks.reduce(
-        (count, track) => count + track.clips.reduce((clipCount, clip) => clipCount + clip.notes.length, 0),
-        0
-      ),
-    [state.tracks]
-  )
   const selectedDuration = state.selection.end - state.selection.start
   const selectedStartBeat = (state.selection.start * state.bpm) / 60
   const selectedEndBeat = (state.selection.end * state.bpm) / 60
@@ -481,22 +459,6 @@ export const StudioApp = ({
   const shiftSelection = (direction: -1 | 1) => {
     const start = Math.max(0, state.selection.start + selectedDuration * direction)
     void run("selection", () => selectStudioTimeRange(start, start + selectedDuration))
-  }
-
-  const handleUpload = async (file: File | undefined) => {
-    if (file === undefined) return
-    setBusy("upload")
-    setError(null)
-    try {
-      const { assetId, url } = registerUploadedAudio(file)
-      const duration = await readAudioDuration(url)
-      await addStudioUpload(assetId, file.name.replace(/\.[^.]+$/, ""), Math.min(duration, 120))
-    } catch (cause) {
-      setError(errorMessage(cause))
-    } finally {
-      setBusy(null)
-      if (uploadRef.current !== null) uploadRef.current.value = ""
-    }
   }
 
   const toggleBrowserRecording = () => {
@@ -711,113 +673,6 @@ export const StudioApp = ({
       </header>
 
       <section className="studio-workspace">
-        {mobileLibraryOpen && (
-          <button
-            className="mobile-library-scrim"
-            type="button"
-            aria-label="Close sound library"
-            onClick={() => setMobileLibraryOpen(false)}
-          />
-        )}
-        <aside
-          className={mobileLibraryOpen ? "library-panel mobile-open" : "library-panel"}
-          id="studio-library"
-        >
-          <div className="panel-title">
-            <span>LIBRARY</span>
-            <strong>{committedClips.toString().padStart(2, "0")}</strong>
-            <button
-              className="mobile-library-close"
-              type="button"
-              aria-label="Close sound library"
-              onClick={() => setMobileLibraryOpen(false)}
-            >
-              ×
-            </button>
-          </div>
-          <label className="library-search">
-            <span>⌕</span>
-            <input type="search" placeholder="Search sounds" aria-label="Search sounds" />
-          </label>
-          <nav className="library-nav" aria-label="Sound library">
-            <button className="active" type="button">
-              <span>◫</span> SESSION CLIPS <b>{committedClips.toString().padStart(2, "0")}</b>
-            </button>
-            <button type="button" onClick={() => setBottomPanel("takes")}>
-              <span>≋</span> GENERATED <b>{state.preview === null ? "00" : "01"}</b>
-            </button>
-            <button type="button" onClick={() => setBottomPanel("clip")}>
-              <span>♬</span> AGENT MIDI <b>{midiNoteCount.toString().padStart(2, "0")}</b>
-            </button>
-            <button type="button" onClick={() => setBottomPanel("automation")}>
-              <span>↻</span> MUTATIONS <b>{state.mutationCount.toString().padStart(2, "0")}</b>
-            </button>
-            <button type="button" onClick={() => uploadRef.current?.click()}>
-              <span>⇧</span> UPLOAD AUDIO <b>+</b>
-            </button>
-          </nav>
-          <div className="library-section-heading">
-            <span>SESSION CLIPS</span>
-          </div>
-          <div className="asset-list">
-            {state.tracks.flatMap((track) =>
-              track.clips.map((clip, index) => (
-                <button
-                  className="asset-card"
-                  type="button"
-                  key={clip.id}
-                  onClick={() => void auditionClip(clip)}
-                >
-                  <span className="asset-icon" style={{ background: track.color }} aria-hidden="true">
-                    {auditioning === clip.id ? "Ⅱ" : "▶"}
-                  </span>
-                  <span>
-                    <b>{clip.name.toUpperCase()}</b>
-                    <small>
-                      {assetMeta(clip, state.bpm)} · TAKE {index + 1}
-                    </small>
-                  </span>
-                  <em>{formatTime(clip.duration).slice(0, 5)}</em>
-                </button>
-              ))
-            )}
-          </div>
-          {state.attribution !== null && (
-            <section className="source-card" aria-label="Song source and license">
-              <small>SOURCE · MIDI</small>
-              <strong>{state.attribution.title}</strong>
-              <span>BY {state.attribution.creator.toUpperCase()}</span>
-              <div>
-                <a href={state.attribution.sourceUrl} target="_blank" rel="noreferrer">
-                  SOURCE ↗
-                </a>
-                <a href={state.attribution.licenseUrl} target="_blank" rel="noreferrer">
-                  {state.attribution.licenseName} ↗
-                </a>
-                <a href={state.attribution.sourceMidiUrl} download>
-                  RAW MIDI ↓
-                </a>
-              </div>
-              <p>{state.attribution.changes}</p>
-            </section>
-          )}
-          <input
-            ref={uploadRef}
-            className="visually-hidden"
-            type="file"
-            accept="audio/*"
-            onChange={(event) => void handleUpload(event.target.files?.[0])}
-          />
-          <button
-            className="upload-button"
-            type="button"
-            disabled={busy !== null}
-            onClick={() => uploadRef.current?.click()}
-          >
-            {busy === "upload" ? "DECODING AUDIO…" : "+ UPLOAD AUDIO"}
-          </button>
-        </aside>
-
         <section className="arrangement-panel" aria-label="Song arrangement">
           <div className="arrangement-toolbar">
             <div>
@@ -836,15 +691,6 @@ export const StudioApp = ({
               {formatTime(state.selection.end).slice(0, 5)}
             </span>
             <div>
-              <button
-                className="mobile-library-toggle"
-                type="button"
-                aria-controls="studio-library"
-                aria-expanded={mobileLibraryOpen}
-                onClick={() => setMobileLibraryOpen(true)}
-              >
-                LIBRARY
-              </button>
               <button
                 type="button"
                 disabled={state.historyDepth === 0 || busy !== null}
