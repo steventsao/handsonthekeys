@@ -424,7 +424,8 @@ const generatedMidiClip = (
   start: number,
   duration: number,
   color: string,
-  bpm = 120
+  bpm = 120,
+  midiProgram?: number
 ): StudioClip => {
   const startBeat = cleanBeat(beatsOfSeconds(start, bpm))
   const durationBeats = cleanBeat(beatsOfSeconds(duration, bpm))
@@ -441,7 +442,7 @@ const generatedMidiClip = (
     {
       id,
       name,
-      program: midiProgramForSound[sound],
+      program: midiProgram ?? midiProgramForSound[sound],
       channel: sound === "drums" ? 9 : 0,
       seed,
       color
@@ -550,6 +551,8 @@ const inferSound = (prompt: string): StudioSound => {
   if (/lead|melody|pluck|arp|hook|solo/.test(normalized)) return "lead"
   return "texture"
 }
+
+const requestsPiano = (prompt: string): boolean => /piano|grand|keyboard|\bkeys\b/i.test(prompt)
 
 export const midiName = (midi: number): string => {
   const names = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"] as const
@@ -1446,6 +1449,7 @@ export class Studio extends Context.Service<
           },
           (internal) => {
             const sound = inferSound(prompt)
+            const piano = requestsPiano(prompt)
             const id = `generated-${internal.nextId}`
             const trackId = "track-generated-midi"
             const targetTrackName = "Generated MIDI"
@@ -1455,13 +1459,18 @@ export class Studio extends Context.Service<
             const clip: StudioClip = {
               ...generatedMidiClip(
                 id,
-                labelForSound[sound],
+                piano
+                  ? sound === "pad"
+                    ? "Piano chords alternate"
+                    : "Piano melody alternate"
+                  : labelForSound[sound],
                 sound,
                 seed,
                 internal.present.selection.start,
                 duration,
                 paletteForSound[sound],
-                internal.present.bpm
+                internal.present.bpm,
+                piano ? 0 : undefined
               ),
               takeGroupId
             }

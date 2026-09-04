@@ -20,6 +20,7 @@ const hashText = (value: string): number => {
 
 const soundOf = (track: ClipTrack, clip: AudioClip): StudioSound => {
   if (clip.midiChannel === 9 || /drum|percussion/i.test(track.name)) return "drums"
+  if (clip.midiProgram !== undefined && clip.midiProgram >= 0 && clip.midiProgram <= 7) return "lead"
   if (
     (clip.midiProgram !== undefined && clip.midiProgram >= 32 && clip.midiProgram <= 39) ||
     /bass|sub|808/i.test(track.name)

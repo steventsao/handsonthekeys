@@ -3079,6 +3079,64 @@ test("WebMCP stages, applies, and undoes a visible alternate take", async ({ pag
     .toBe(9)
 })
 
+test("Studio appends a second generated MIDI take without breaking the audio engine", async ({ page }) => {
+  await page.goto("/?mode=daw")
+  await waitForStudioTools(page)
+  await expect(page.getByTestId("studio-runtime")).toHaveAttribute("aria-label", /audio engine ready$/)
+
+  let revision = 1
+  for (const [suffix, prompt] of [
+    ["chords", "Write spacious piano chords"],
+    ["melody", "Write a lyrical piano melody"]
+  ] as const) {
+    const staged = JSON.parse(
+      await page.evaluate(executeTool, [
+        "stage_studio_part",
+        {
+          request_id: `e2e-stage-piano-${suffix}`,
+          expected_revision: revision,
+          prompt
+        }
+      ] as const)
+    ) as { state: { revision: number; pending_preview_id: string } }
+
+    const applied = JSON.parse(
+      await page.evaluate(executeTool, [
+        "apply_studio_preview",
+        {
+          request_id: `e2e-apply-piano-${suffix}`,
+          expected_revision: staged.state.revision,
+          preview_id: staged.state.pending_preview_id
+        }
+      ] as const)
+    ) as { state: { revision: number } }
+    revision = applied.state.revision
+  }
+
+  await expect
+    .poll(() => page.locator("daw-editor daw-track").count(), {
+      message: "both piano takes stay on one canonical MIDI track"
+    })
+    .toBe(1)
+  await expect
+    .poll(() => page.locator("daw-editor daw-clip").count(), {
+      message: "the appended piano clip renders in the DAW"
+    })
+    .toBe(2)
+  await expect(page.getByTestId("studio-runtime")).toHaveAttribute("aria-label", /audio engine ready$/)
+  await expect(page.getByText("AUDIO ENGINE ERROR")).toHaveCount(0)
+
+  const midi = JSON.parse(await page.evaluate(executeTool, ["get_studio_midi", {}] as const)) as {
+    tracks: Array<{
+      clips: Array<{ name: string; program: number; channel: number }>
+    }>
+  }
+  expect(midi.tracks[0]?.clips).toEqual([
+    expect.objectContaining({ name: "Piano chords alternate", program: 0, channel: 0 }),
+    expect.objectContaining({ name: "Piano melody alternate", program: 0, channel: 0 })
+  ])
+})
+
 test("WebMCP writes, reads, replaces, and undoes exact MIDI", async ({ page }) => {
   await page.goto("/?mode=daw&song=korobeiniki")
   await expect(page.getByTestId("studio-runtime")).toHaveAttribute("aria-label", /1 tool/)
@@ -3128,7 +3186,9 @@ test("WebMCP writes, reads, replaces, and undoes exact MIDI", async ({ page }) =
       message: "the exact MIDI batch renders as a DAW track"
     })
     .toBe(10)
-  await expect(page.getByText("AGENT MIDI", { exact: false })).toBeVisible()
+  await expect(page.locator(".activity-toast")).toContainText(
+    "Created “Exact progression” with 4 exact MIDI notes."
+  )
 
   const midi = JSON.parse(await page.evaluate(executeTool, ["get_studio_midi", {}] as const)) as {
     timebase: string
@@ -3344,7 +3404,9 @@ test("Effect journal exposes ordered agent mutations without duplicate or failed
     track_id: midi.result.trackId,
     clip_id: midi.result.clipId
   })
-  await expect(page.getByRole("button", { name: /MUTATIONS 02/ })).toBeVisible()
+  await expect(page.locator(".activity-toast")).toContainText(
+    "Created “Agent MIDI 1” with 1 exact MIDI note."
+  )
 
   const filtered = JSON.parse(
     await page.evaluate(executeTool, [

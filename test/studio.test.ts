@@ -697,6 +697,22 @@ describe("Studio service", () => {
     }).pipe(Effect.provide(Studio.layer))
   )
 
+  it.effect("stages piano prompts with a General MIDI piano program", () =>
+    Effect.gen(function* () {
+      const studio = yield* Studio
+      yield* studio.stagePart("Write spacious piano chords", {
+        requestId: "piano-stage",
+        expectedRevision: 1
+      })
+      const state = yield* studio.snapshot
+
+      assert.strictEqual(state.preview?.clip.kind, "midi")
+      assert.strictEqual(state.preview?.clip.name, "Piano chords alternate")
+      assert.strictEqual(state.preview?.clip.midiProgram, 0)
+      assert.strictEqual(state.preview?.clip.midiChannel, 0)
+    }).pipe(Effect.provide(Studio.layer))
+  )
+
   it.effect("writes exact beat-based MIDI as one undoable transaction", () =>
     Effect.gen(function* () {
       const studio = yield* Studio

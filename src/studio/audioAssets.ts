@@ -14,6 +14,9 @@ const deterministicNoise = (sample: number, seed: number): number => {
   return ((value ^ (value >>> 16)) >>> 0) / 2_147_483_648 - 1
 }
 
+const highPassedNoise = (sample: number, seed: number, stride = 1): number =>
+  (deterministicNoise(sample * stride, seed) - deterministicNoise((sample - 1) * stride, seed)) * 0.5
+
 const drumSample = (time: number, sample: number, bpm: number, seed: number): number => {
   const beatDuration = 60 / bpm
   const quarterIndex = Math.floor(time / beatDuration)
@@ -112,18 +115,99 @@ const sampleForSound = (
 }
 
 const drumNoteSample = (midi: number, age: number, sample: number, seed: number): number => {
-  if (midi <= 37) {
-    const frequency = 46 + 72 * Math.exp(-age * 30)
-    return Math.sin(Math.PI * 2 * frequency * age) * Math.exp(-age * 17) * 0.92
+  const tau = Math.PI * 2
+
+  if (midi === 35 || midi === 36) {
+    const phase = 47 * age + (108 * (1 - Math.exp(-age * 34))) / 34
+    const body = Math.sin(tau * phase) * Math.exp(-age * 11.5)
+    const sub = Math.sin(tau * 43 * age) * Math.exp(-age * 7.5)
+    const click = highPassedNoise(sample, seed + midi, 5) * Math.exp(-age * 105)
+    return body * 0.82 + sub * 0.17 + click * 0.09
   }
-  if (midi <= 41) {
-    const envelope = Math.exp(-age * 24)
+
+  if (midi === 37) {
+    const click = highPassedNoise(sample, seed + midi, 7) * Math.exp(-age * 72)
+    const shell = Math.sin(tau * 1_740 * age) * Math.exp(-age * 48)
+    return click * 0.62 + shell * 0.25
+  }
+
+  if (midi === 38 || midi === 40) {
+    const attack = Math.min(1, age * 900)
+    const snap = highPassedNoise(sample, seed + midi, 3) * Math.exp(-age * 18)
+    const wires = highPassedNoise(sample, seed + midi + 31, 11) * Math.exp(-age * 8.5)
+    const body =
+      (Math.sin(tau * 181 * age) * 0.72 + Math.sin(tau * 329 * age + 0.35) * 0.28) * Math.exp(-age * 21)
+    return (snap * 0.58 + wires * 0.16 + body * 0.32) * attack
+  }
+
+  if (midi === 39) {
+    const burst = (offset: number): number =>
+      age < offset
+        ? 0
+        : highPassedNoise(sample, seed + Math.round(offset * 10_000), 5) * Math.exp(-(age - offset) * 65)
+    return (burst(0) + burst(0.012) * 0.78 + burst(0.025) * 0.58) * 0.58
+  }
+
+  if (midi === 41 || midi === 43 || midi === 45 || midi === 47 || midi === 48 || midi === 50) {
+    const frequency =
+      midi === 41 ? 82 : midi === 43 ? 92 : midi === 45 ? 110 : midi === 47 ? 124 : midi === 48 ? 147 : 165
+    const phase = frequency * age + (frequency * 0.34 * (1 - Math.exp(-age * 18))) / 18
+    const attack = Math.min(1, age * 320)
     return (
-      deterministicNoise(sample * 3, seed + midi) * envelope * 0.62 +
-      Math.sin(Math.PI * 2 * 185 * age) * envelope * 0.22
+      (Math.sin(tau * phase) * 0.72 +
+        Math.sin(tau * phase * 1.51 + 0.25) * 0.18 +
+        highPassedNoise(sample, seed + midi, 3) * Math.exp(-age * 42) * 0.08) *
+      attack *
+      Math.exp(-age * 7.2)
     )
   }
-  return deterministicNoise(sample * 7, seed + midi) * Math.exp(-age * 52) * 0.28
+
+  if (midi === 42 || midi === 44 || midi === 46) {
+    const open = midi === 46
+    const envelope = Math.min(1, age * 1_200) * Math.exp(-age * (open ? 7.5 : 48))
+    const metal =
+      Math.sin(tau * 5_270 * age) * 0.26 +
+      Math.sin(tau * 7_431 * age + 0.6) * 0.22 +
+      Math.sin(tau * 10_139 * age + 1.2) * 0.16
+    const air = highPassedNoise(sample, seed + midi, 13) * 0.58
+    return (metal + air) * envelope * (open ? 0.5 : 0.42)
+  }
+
+  if (midi === 51 || midi === 53 || midi === 59) {
+    const envelope = Math.min(1, age * 700) * Math.exp(-age * 3.2)
+    const bell =
+      Math.sin(tau * 2_750 * age) * 0.3 +
+      Math.sin(tau * 4_183 * age + 0.5) * 0.24 +
+      Math.sin(tau * 6_917 * age + 1.1) * 0.18
+    return (bell + highPassedNoise(sample, seed + midi, 9) * 0.22) * envelope * 0.48
+  }
+
+  if (midi === 49 || midi === 52 || midi === 55 || midi === 57) {
+    const envelope = Math.min(1, age * 550) * Math.exp(-age * 2.7)
+    const shimmer =
+      Math.sin(tau * 3_381 * age) * 0.18 +
+      Math.sin(tau * 5_707 * age + 0.7) * 0.16 +
+      Math.sin(tau * 8_921 * age + 1.4) * 0.13
+    return (highPassedNoise(sample, seed + midi, 11) * 0.5 + shimmer) * envelope * 0.45
+  }
+
+  return (
+    highPassedNoise(sample, seed + midi, 7) * Math.exp(-age * 21) * 0.42 +
+    Math.sin(tau * (240 + midi * 8) * age) * Math.exp(-age * 16) * 0.18
+  )
+}
+
+const percussionTailSeconds = (midi: number): number => {
+  if (midi === 35 || midi === 36) return 0.42
+  if (midi === 38 || midi === 39 || midi === 40) return 0.36
+  if (midi === 41 || midi === 43 || midi === 45 || midi === 47 || midi === 48 || midi === 50) {
+    return 0.52
+  }
+  if (midi === 46) return 0.7
+  if (midi === 49 || midi === 51 || midi === 52 || midi === 53 || midi === 55 || midi === 57 || midi === 59) {
+    return 1.25
+  }
+  return 0.14
 }
 
 const pitchedNoteSample = (
@@ -136,6 +220,23 @@ const pitchedNoteSample = (
 ): number => {
   const frequency = midiToFrequency(note.midi)
   const phase = age * frequency
+
+  // Channel-10 percussion is selected by the canonical sound/channel mapping;
+  // its General MIDI program value is not an instrument family selector.
+  if (sound === "drums") return drumNoteSample(note.midi, age, sample, seed)
+
+  if (midiProgram !== undefined && midiProgram >= 0 && midiProgram <= 3) {
+    const attack = Math.min(1, age * 180)
+    const release = Math.min(1, Math.max(0, note.duration - age) * 18)
+    const fundamental =
+      Math.sin(Math.PI * 2 * phase * 0.9988) * 0.34 + Math.sin(Math.PI * 2 * phase * 1.0014 + 0.17) * 0.34
+    const overtones =
+      Math.sin(Math.PI * 4 * phase + 0.11) * Math.exp(-age * 1.5) * 0.18 +
+      Math.sin(Math.PI * 6.02 * phase + 0.4) * Math.exp(-age * 2.6) * 0.09 +
+      Math.sin(Math.PI * 8.05 * phase + 0.9) * Math.exp(-age * 4.1) * 0.045
+    const hammer = highPassedNoise(sample, seed + note.midi, 5) * Math.exp(-age * 72) * 0.045
+    return (fundamental * Math.exp(-age * 0.72) + overtones + hammer) * attack * release * 0.78
+  }
 
   if (midiProgram !== undefined && midiProgram >= 24 && midiProgram <= 31) {
     const attack = Math.min(1, age * 80)
@@ -184,8 +285,6 @@ const pitchedNoteSample = (
   const release = Math.min(1, Math.max(0, note.duration - age) * (sound === "pad" ? 5 : 24))
   const envelope = attack * release
   switch (sound) {
-    case "drums":
-      return drumNoteSample(note.midi, age, sample, seed)
     case "bass":
       return (
         (Math.sin(Math.PI * 2 * phase) * 0.72 + (2 * (phase % 1) - 1) * 0.2) * envelope * Math.exp(-age * 0.7)
@@ -221,7 +320,9 @@ export const renderStudioMidiSamples = (
 
   for (const [noteIndex, note] of notes.entries()) {
     const firstSample = Math.max(0, Math.floor(note.time * sampleRate))
-    const lastSample = Math.min(sampleCount, Math.ceil((note.time + note.duration) * sampleRate))
+    const audibleDuration =
+      sound === "drums" ? Math.max(note.duration, percussionTailSeconds(note.midi)) : note.duration
+    const lastSample = Math.min(sampleCount, Math.ceil((note.time + audibleDuration) * sampleRate))
 
     for (let sample = firstSample; sample < lastSample; sample += 1) {
       const age = sample / sampleRate - note.time
@@ -229,6 +330,12 @@ export const renderStudioMidiSamples = (
         (rendered[sample] ?? 0) +
         pitchedNoteSample(note, sound, age, sample, seed + noteIndex * 17, midiProgram) * note.velocity
     }
+  }
+
+  for (let sample = 0; sample < rendered.length; sample += 1) {
+    const value = rendered[sample] ?? 0
+    if (Math.abs(value) <= 0.9) continue
+    rendered[sample] = Math.sign(value) * (0.9 + Math.tanh((Math.abs(value) - 0.9) * 4) * 0.1)
   }
 
   return rendered

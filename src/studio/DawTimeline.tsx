@@ -90,6 +90,18 @@ const clipConfig = (clip: StudioClip, bpm: number): ClipConfig =>
         name: clip.name
       }
 
+const appendedClipConfig = (clip: StudioClip, bpm: number): ClipConfig => {
+  const config = clipConfig(clip, bpm)
+  if (clip.kind !== "midi") return config
+
+  // @dawcore/components 0.0.37 documents source-free MIDI ClipConfig values,
+  // but its imperative addClip path still rejects them. Supplying the
+  // browser-rendered preview URL keeps incremental MIDI clips on the supported
+  // path while midiNotes remain authoritative for piano-roll display and the
+  // shared Studio playout adapter.
+  return { ...config, src: resolveClipAudioUrl(clip, bpm) }
+}
+
 const findDomainTrackId = (bindings: ReadonlyMap<string, TrackBinding>, dawTrackId: string) =>
   Array.from(bindings.values()).find((binding) => binding.dawId === dawTrackId)?.domainId
 
@@ -733,7 +745,7 @@ export const DawTimeline = forwardRef<DawTimelineHandle, DawTimelineProps>(funct
           for (const clip of track.clips) {
             const currentClip = binding.clips.get(clip.id)
             if (currentClip === undefined) {
-              const dawId = await editor.addClip(binding.dawId, clipConfig(clip, state.bpm))
+              const dawId = await editor.addClip(binding.dawId, appendedClipConfig(clip, state.bpm))
               const element = Array.from(binding.element.querySelectorAll("daw-clip")).find(
                 (candidate) => candidate.clipId === dawId
               )
