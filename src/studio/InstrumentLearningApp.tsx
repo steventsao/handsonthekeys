@@ -7,8 +7,7 @@ import {
   type InstrumentLearningMode,
   type InstrumentLearningState,
   type LearningMetronomeRamp,
-  type LearningMetronomeController,
-  type LearningTransportCommand
+  type LearningMetronomeController
 } from "./InstrumentLearning.ts"
 import { LearningModeSwitch } from "./LearningModeSwitch.tsx"
 import { SessionMode } from "./SessionMode.tsx"
@@ -165,9 +164,6 @@ const TabLearningApp = ({
       setBusy(null)
     }
   }
-
-  const control = (command: LearningTransportCommand) =>
-    void run("transport", () => controlInstrumentLearningTransport(command))
 
   const toggleMetronome = () => void run("metronome", onToggleMetronome)
 
@@ -339,41 +335,6 @@ const TabLearningApp = ({
             >
               ↻ LOOP
             </button>
-            <button
-              type="button"
-              aria-label="Restart lesson"
-              disabled={engineStatus !== "ready" || busy !== null}
-              onClick={() =>
-                control({
-                  action: "play_range",
-                  startBeat: tab.range.start_beat,
-                  endBeat: tab.range.end_beat
-                })
-              }
-            >
-              ↶
-            </button>
-            <button
-              className="lesson-play"
-              type="button"
-              aria-label={playing ? "Pause lesson" : "Play lesson"}
-              disabled={engineStatus !== "ready" || busy !== null || tab.events.length === 0}
-              onClick={() => control(playing ? { action: "pause" } : { action: "play" })}
-            >
-              {playing ? "Ⅱ PAUSE" : "▶ PLAY"}
-            </button>
-            <button
-              type="button"
-              aria-label="Stop lesson"
-              disabled={engineStatus !== "ready" || busy !== null}
-              onClick={() => control({ action: "stop" })}
-            >
-              ■
-            </button>
-            <div className="lesson-playhead">
-              <span>BEAT</span>
-              <strong>{playheadBeat.toFixed(2)}</strong>
-            </div>
             <label className="lesson-tempo">
               <span>TEMPO</span>
               <input
@@ -414,7 +375,9 @@ const TabLearningApp = ({
                 tab={tab}
                 activeEventId={activeEvent?.note_id}
                 playheadBeat={playheadBeat}
-                onSeek={(beat) => control({ action: "seek", beat })}
+                onSeek={(beat) =>
+                  void run("transport", () => controlInstrumentLearningTransport({ action: "seek", beat }))
+                }
               />
             </Suspense>
           </div>
@@ -465,6 +428,7 @@ export const InstrumentLearningApp = () => {
   const [toolsReady, setToolsReady] = useState(false)
   const [modeError, setModeError] = useState<string | null>(null)
   const [metronomeError, setMetronomeError] = useState<string | null>(null)
+  const [transportBusy, setTransportBusy] = useState(false)
   const [playoutAdapter] = useState(() =>
     createStudioPlayoutAdapter({
       initial: {
@@ -624,6 +588,19 @@ export const InstrumentLearningApp = () => {
     await setInstrumentLearningMetronome(enabled, learning.lessonRevision)
   }
 
+  const controlTransport = async (action: "play" | "pause" | "stop" | "seek") => {
+    if (transportBusy) return
+    setTransportBusy(true)
+    setModeError(null)
+    try {
+      await controlInstrumentLearningTransport(action === "seek" ? { action, beat: 0 } : { action })
+    } catch (cause) {
+      setModeError(messageOf(cause))
+    } finally {
+      setTransportBusy(false)
+    }
+  }
+
   return (
     <div
       className="learning-app-shell"
@@ -631,7 +608,51 @@ export const InstrumentLearningApp = () => {
       data-project-id={studio.projectId}
       data-project-revision={studio.revision}
     >
-      <header className="learning-header learning-app-header" data-testid="learning-mode-shell">
+      <header
+        className="learning-header learning-app-header"
+        data-testid="learning-mode-shell"
+        aria-label="Persistent workspace dock"
+      >
+        <div className="shell-transport" aria-label="Shared transport controls">
+          <button
+            className="shell-return-button"
+            type="button"
+            aria-label="Return to start"
+            title="Return to start"
+            disabled={transportBusy || transportState.engineStatus !== "ready"}
+            onClick={() => void controlTransport("seek")}
+          >
+            ◀│
+          </button>
+          <button
+            className={transportState.playing ? "shell-play-button playing" : "shell-play-button"}
+            type="button"
+            aria-label={transportState.playing ? "Pause" : "Play"}
+            title={transportState.playing ? "Pause" : "Play"}
+            disabled={transportBusy || transportState.engineStatus !== "ready" || studio.tracks.length === 0}
+            onClick={() => void controlTransport(transportState.playing ? "pause" : "play")}
+          >
+            {transportState.playing ? "Ⅱ" : "▶"}
+          </button>
+          <button
+            className="shell-stop-button"
+            type="button"
+            aria-label="Stop"
+            title="Stop"
+            disabled={transportBusy || transportState.engineStatus !== "ready"}
+            onClick={() => void controlTransport("stop")}
+          >
+            ■
+          </button>
+          <output
+            className="shell-playhead"
+            aria-label={`Playhead beat ${transportState.playheadBeat.toFixed(2)}`}
+          >
+            <span>BEAT</span>
+            <strong>{transportState.playheadBeat.toFixed(2)}</strong>
+          </output>
+        </div>
+        <span className="shell-dock-divider" aria-hidden="true" />
         <LearningModeSwitch mode={learning.mode} onChange={changeMode} />
       </header>
 
@@ -642,7 +663,7 @@ export const InstrumentLearningApp = () => {
             instruments={sessionInstruments}
             toolsReady={toolsReady}
             metronome={metronomeSnapshot}
-            metronomeError={metronomeError}
+            metronomeError={metronomeError ?? modeError}
             engineStatus={transportState.engineStatus}
             engineMessage={transportState.engineMessage}
             playing={transportState.playing}

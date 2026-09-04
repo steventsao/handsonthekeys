@@ -2,7 +2,7 @@ import { useEffect, useState } from "react"
 import type { BrowserMetronomeSnapshot } from "./browserMetronome.ts"
 import type { SessionInstrumentTileView, SessionInstrumentView } from "./sessionInstrumentView.ts"
 import type { StudioState } from "./Studio.ts"
-import { controlInstrumentLearningTransport, setStudioTempo } from "./studioRuntime.ts"
+import { setStudioTempo } from "./studioRuntime.ts"
 import { ThreeMetronome } from "./ThreeMetronome.tsx"
 import {
   updateStudioPresentationEngine,
@@ -203,31 +203,10 @@ export const SessionMode = ({
     >
       <section className="session-stage" aria-label="Shared transport instrument session">
         <header className="session-project">
-          <div className="session-project-transport" aria-label="Session musical transport">
-            <button
-              type="button"
-              aria-label={playing ? "Pause lesson" : "Play lesson"}
-              disabled={busy !== null || engineStatus !== "ready" || state.tracks.length === 0}
-              onClick={() =>
-                void run("transport", () =>
-                  controlInstrumentLearningTransport(playing ? { action: "pause" } : { action: "play" })
-                )
-              }
-            >
-              <span aria-hidden="true">{playing ? "Ⅱ" : "▶"}</span>
-              {playing ? "PAUSE" : "PLAY"}
-            </button>
-            <button
-              type="button"
-              aria-label="Stop lesson"
-              disabled={busy !== null || engineStatus !== "ready" || state.tracks.length === 0}
-              onClick={() =>
-                void run("transport", () => controlInstrumentLearningTransport({ action: "stop" }))
-              }
-            >
-              <span aria-hidden="true">■</span>
-              STOP
-            </button>
+          <div className="session-project-identity">
+            <span>SESSION</span>
+            <strong>{state.title}</strong>
+            <small>REV {state.revision}</small>
           </div>
         </header>
 

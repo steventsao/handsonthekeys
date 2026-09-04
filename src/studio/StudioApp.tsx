@@ -588,15 +588,6 @@ export const StudioApp = ({
             ♩
           </button>
           <button
-            type="button"
-            aria-label="Return to start"
-            onClick={() =>
-              void run("transport", () => controlInstrumentLearningTransport({ action: "seek", beat: 0 }))
-            }
-          >
-            ◀│
-          </button>
-          <button
             className={learning.transportLoop.enabled ? "loop-button active" : "loop-button"}
             type="button"
             data-testid="transport-loop-toggle"
@@ -674,19 +665,6 @@ export const StudioApp = ({
                   : recording.status.toUpperCase()}
             </span>
           )}
-          <button
-            className={playing ? "play-button playing" : "play-button"}
-            type="button"
-            aria-label={playing ? "Pause" : "Play"}
-            disabled={busy !== null || engineStatus !== "ready" || state.tracks.length === 0}
-            onClick={() =>
-              void run("transport", () =>
-                controlInstrumentLearningTransport(playing ? { action: "pause" } : { action: "play" })
-              )
-            }
-          >
-            {playing ? "Ⅱ" : "▶"}
-          </button>
           <button
             type="button"
             aria-label="Play selected range"

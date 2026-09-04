@@ -15,19 +15,119 @@
   right: auto;
   bottom: calc(4.4rem + env(safe-area-inset-bottom));
   left: 50%;
+  display: flex;
   width: max-content;
   max-width: calc(100vw - 1rem);
   min-height: 0;
-  padding: 0;
-  border: 0;
-  background: transparent;
-  box-shadow: none;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.38rem;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 1.35rem;
+  background: rgba(24, 27, 33, 0.76);
+  box-shadow:
+    0 1.25rem 3.5rem rgba(0, 0, 0, 0.48),
+    0 0.15rem 0.55rem rgba(0, 0, 0, 0.35),
+    inset 0 1px rgba(255, 255, 255, 0.13);
+  backdrop-filter: blur(1.25rem) saturate(155%);
+  -webkit-backdrop-filter: blur(1.25rem) saturate(155%);
   pointer-events: none;
   transform: translateX(-50%);
 }
 
-.learning-app-header .learning-mode-switch {
+.learning-app-header > * {
   pointer-events: auto;
+}
+
+.shell-transport {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.shell-transport button {
+  display: grid;
+  width: 2.75rem;
+  height: 2.75rem;
+  flex: 0 0 2.75rem;
+  place-items: center;
+  border: 1px solid transparent;
+  border-radius: 0.82rem;
+  background: rgba(255, 255, 255, 0.055);
+  color: #c2c8cf;
+  font-size: 0.78rem;
+  font-weight: 900;
+  transition:
+    color 160ms ease,
+    background 160ms ease,
+    border-color 160ms ease,
+    box-shadow 160ms ease,
+    transform 160ms ease;
+}
+
+.shell-transport button:not(:disabled):hover {
+  border-color: rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+.shell-transport button:not(:disabled):active {
+  transform: translateY(1px);
+}
+
+.shell-transport button:focus-visible {
+  outline: 2px solid rgba(115, 184, 255, 0.92);
+  outline-offset: 2px;
+}
+
+.shell-transport .shell-play-button {
+  background: linear-gradient(180deg, #78d879, #46a84d);
+  color: #102112;
+  box-shadow:
+    0 0.45rem 1.1rem rgba(45, 139, 52, 0.3),
+    inset 0 1px rgba(255, 255, 255, 0.32);
+  font-size: 0.9rem;
+}
+
+.shell-transport .shell-play-button.playing {
+  border-color: rgba(146, 231, 149, 0.5);
+  box-shadow:
+    0 0 0 0.18rem rgba(99, 199, 102, 0.14),
+    0 0.5rem 1.4rem rgba(45, 139, 52, 0.42),
+    inset 0 1px rgba(255, 255, 255, 0.34);
+}
+
+.shell-transport .shell-stop-button {
+  color: #ff8b88;
+}
+
+.shell-playhead {
+  display: grid;
+  min-width: 4.5rem;
+  gap: 0.12rem;
+  padding: 0 0.48rem;
+  color: #f5f7fa;
+  font-family: "SFMono-Regular", Consolas, monospace;
+  text-align: right;
+}
+
+.shell-playhead span {
+  color: #858c96;
+  font-family: Inter, ui-sans-serif, sans-serif;
+  font-size: 0.46rem;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+}
+
+.shell-playhead strong {
+  font-size: 0.72rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.shell-dock-divider {
+  width: 1px;
+  height: 2rem;
+  background: rgba(255, 255, 255, 0.14);
 }
 
 .learning-mode-surface {
@@ -48,6 +148,10 @@
 
 .learning-mode-surface > .learning-shell {
   overflow: auto;
+}
+
+.learning-app-shell[data-mode="daw"] .magic-dock {
+  margin-bottom: 4.75rem;
 }
 
 .learning-shell {
@@ -75,16 +179,7 @@
   display: inline-grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 0.25rem;
-  padding: 0.34rem;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 1.15rem;
-  background: rgba(24, 27, 33, 0.72);
-  box-shadow:
-    0 1.25rem 3.5rem rgba(0, 0, 0, 0.48),
-    0 0.15rem 0.55rem rgba(0, 0, 0, 0.35),
-    inset 0 1px rgba(255, 255, 255, 0.13);
-  backdrop-filter: blur(1.25rem) saturate(155%);
-  -webkit-backdrop-filter: blur(1.25rem) saturate(155%);
+  padding: 0;
 }
 
 .learning-mode-switch button {
@@ -131,28 +226,6 @@
   color: #fff;
 }
 
-.learning-app-shell[data-mode="session"] .learning-header {
-  background: transparent;
-}
-
-.learning-app-shell[data-mode="session"] .learning-mode-switch {
-  border-color: rgba(255, 255, 255, 0.22);
-  border-radius: 1.15rem;
-  background: rgba(26, 26, 25, 0.74);
-}
-
-.learning-app-shell[data-mode="session"] .learning-mode-switch button {
-  border-radius: 0.82rem;
-}
-
-.learning-app-shell[data-mode="session"] .learning-mode-switch button.active {
-  border-color: rgba(255, 176, 166, 0.28);
-  background: linear-gradient(180deg, #e34d3d, #b92f25);
-  box-shadow:
-    0 0.5rem 1.35rem rgba(128, 30, 23, 0.38),
-    inset 0 1px rgba(255, 255, 255, 0.24);
-}
-
 .session-shell {
   min-width: 320px;
   overflow: auto;
@@ -182,40 +255,33 @@
   justify-content: flex-end;
   gap: 1rem;
 }
-.session-project-transport {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
+
+.session-project-identity {
+  display: grid;
+  grid-template-columns: auto auto;
+  align-items: baseline;
+  gap: 0.2rem 0.75rem;
+  color: #242421;
+  text-align: right;
 }
 
-.session-project button {
-  min-height: 2.75rem;
-  border: 1px solid #343431;
-  border-radius: 0.35rem;
-  padding: 0 0.9rem;
-  background: #252523;
-  color: #f4f3ef;
-  font-size: 0.65rem;
+.session-project-identity span,
+.session-project-identity small {
+  color: #68665f;
+  font-size: 0.55rem;
   font-weight: 900;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.12em;
 }
 
-.session-project button span {
-  margin-right: 0.45rem;
-  color: #ef6354;
-}
-
-.session-project button:disabled {
-  border-color: #89877f;
-  background: transparent;
-  color: #74726d;
-}
-
-.session-project button:not(:disabled):hover,
-.session-project button:not(:disabled):focus-visible {
-  border-color: #ef6354;
-  background: #cf3f31;
-  color: #fff;
+.session-project-identity strong {
+  grid-row: 1 / 3;
+  grid-column: 2;
+  max-width: min(32rem, 70vw);
+  overflow: hidden;
+  font-size: clamp(1rem, 2vw, 1.5rem);
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
 }
 
 .session-instrument-grid {
@@ -869,14 +935,6 @@
   font-weight: 900;
 }
 
-.learning-transport > button.lesson-play {
-  min-width: 7.2rem;
-  background: var(--studio-green);
-  color: #111418;
-  font-size: 0.68rem;
-  letter-spacing: 0.06em;
-}
-
 .learning-transport > button.lesson-metronome.active {
   border-color: color-mix(in srgb, var(--studio-accent) 72%, transparent);
   background: color-mix(in srgb, var(--studio-accent) 18%, var(--studio-panel-high));
@@ -897,30 +955,12 @@
   box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--studio-green) 22%, transparent);
 }
 
-.lesson-playhead {
-  display: grid;
-  grid-template-columns: auto auto;
-  gap: 0.2rem 0.5rem;
-  margin-left: 0.4rem;
-}
-
-.lesson-playhead span,
 .lesson-tempo span {
   align-self: end;
   color: var(--studio-faint);
   font-size: 0.48rem;
   font-weight: 900;
   letter-spacing: 0.08em;
-}
-
-.lesson-playhead strong {
-  grid-row: 1 / 3;
-  grid-column: 2;
-  align-self: center;
-  min-width: 4.2rem;
-  color: #e8ebee;
-  font-family: "SFMono-Regular", Consolas, monospace;
-  font-size: 0.86rem;
 }
 
 .lesson-tempo {
@@ -1299,12 +1339,42 @@
   .learning-mode-switch button {
     min-width: 0;
     min-height: 2.75rem;
-    padding-inline: 0.42rem;
+    padding-inline: 0.2rem;
+    font-size: 0.62rem;
+    letter-spacing: 0.035em;
   }
 
   .learning-app-header {
     bottom: calc(4.2rem + env(safe-area-inset-bottom));
+    display: flex;
     width: calc(100vw - 1rem);
+    gap: 0.3rem;
+    padding: 0.35rem;
+    border-radius: 1.2rem;
+  }
+
+  .shell-transport {
+    display: flex;
+    width: auto;
+  }
+
+  .shell-playhead {
+    display: none;
+  }
+
+  .learning-app-header .learning-mode-switch {
+    width: auto;
+    min-width: 0;
+    flex: 1 1 auto;
+  }
+
+  .learning-app-shell[data-mode="daw"] .magic-dock {
+    margin-bottom: 0.5rem;
+  }
+
+  .learning-app-shell[data-mode="daw"] .timeline-frame {
+    min-height: 16rem;
+    flex: 0 1 clamp(16rem, calc(55svh - 4rem), 24rem);
   }
 
   .session-stage {
@@ -1320,14 +1390,13 @@
     flex-direction: column;
   }
 
-  .session-project-transport {
-    display: grid;
-    width: 100%;
-    grid-template-columns: 1fr 1fr;
+  .session-project-identity {
+    grid-template-columns: auto minmax(0, 1fr);
+    text-align: left;
   }
 
-  .session-project button {
-    width: 100%;
+  .session-project-identity strong {
+    max-width: 100%;
   }
 
   .session-instrument-grid {
@@ -1424,24 +1493,11 @@
     box-shadow: 0 0.7rem 1.8rem rgba(0, 0, 0, 0.32);
   }
 
-  .learning-transport > button.lesson-play {
-    min-width: 6.4rem;
-  }
-
-  .lesson-playhead {
-    margin-left: 0;
-  }
-
-  .lesson-playhead strong {
-    min-width: 3.4rem;
-    font-size: 0.72rem;
-  }
-
   .lesson-tempo {
-    width: 100%;
-    margin-left: 0;
-    padding-top: 0.35rem;
-    border-top: 1px solid var(--studio-line);
+    width: auto;
+    margin-left: auto;
+    padding-top: 0;
+    border-top: 0;
   }
 
   .lesson-tempo input {

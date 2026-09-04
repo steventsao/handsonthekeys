@@ -1375,7 +1375,7 @@ test("Tab and Studio modes share one MCP-controlled MIDI lesson on a phone", asy
   await expect(page.getByText("FRET 5", { exact: true })).toBeVisible()
 
   const phoneLayout = await page.evaluate(() => {
-    const play = document.querySelector<HTMLElement>('.learning-transport button[aria-label="Play lesson"]')
+    const play = document.querySelector<HTMLElement>('.shell-transport button[aria-label="Play"]')
     const tab = document.querySelector<HTMLElement>("[data-testid=guitar-tab]")
     if (play === null || tab === null) throw new Error("Missing phone lesson controls")
     return {
@@ -1439,11 +1439,11 @@ test("Tab and Studio modes share one MCP-controlled MIDI lesson on a phone", asy
   await expect(page).toHaveURL(/\/\?mode=tab&song=afterglow$/)
   await expect(page.getByTestId("instrument-learning-app")).toBeVisible()
   await expect(page.getByText("FRET 5", { exact: true })).toBeVisible()
-  await expect(page.locator(".lesson-playhead strong")).toHaveText(dawPlaybackStart.toFixed(2))
+  await expect(page.locator(".shell-playhead strong")).toHaveText(dawPlaybackStart.toFixed(2))
   await expect(page.locator('daw-editor[data-mode-persistent-transport="tab-origin"]')).toHaveCount(1)
 
   await page.locator(".notation-hit-target").nth(1).click()
-  await expect(page.locator(".lesson-playhead strong")).toHaveText(
+  await expect(page.locator(".shell-playhead strong")).toHaveText(
     (tabBefore.range.start_beat + 0.5).toFixed(2)
   )
   await expect(page.locator(".notation-hit-target").nth(1)).toHaveClass(/active/)
@@ -1481,7 +1481,7 @@ test("Tab and Studio modes share one MCP-controlled MIDI lesson on a phone", asy
     "control_learning_transport",
     { request_id: "e2e-pause-tab-range", action: "pause" }
   ] as const)
-  await expect(page.getByRole("button", { name: "Play lesson" })).toBeVisible()
+  await expect(page.getByRole("button", { name: "Play", exact: true })).toBeVisible()
   expect(tabMode.lesson_revision).toBe(dawMode.lesson_revision + 1)
 })
 
@@ -1642,8 +1642,6 @@ test("Session, Tab, and Studio keep one stable outer mode shell", async ({ page 
     modeShell.evaluate((element) => {
       const rect = element.getBoundingClientRect()
       const style = getComputedStyle(element)
-      const dock = element.querySelector<HTMLElement>(".learning-mode-switch")
-      const dockStyle = dock === null ? null : getComputedStyle(dock)
       return {
         top: rect.top,
         left: rect.left,
@@ -1651,7 +1649,7 @@ test("Session, Tab, and Studio keep one stable outer mode shell", async ({ page 
         height: rect.height,
         bottom: rect.bottom,
         position: style.position,
-        backdropFilter: dockStyle?.backdropFilter ?? "none"
+        backdropFilter: style.backdropFilter
       }
     })
 
@@ -1661,6 +1659,11 @@ test("Session, Tab, and Studio keep one stable outer mode shell", async ({ page 
   await expect(modeShell).not.toContainText("DAW")
   await expect(modeShell).toContainText("STUDIO")
   await expect(modeShell.locator(".learning-mode-switch")).toHaveCount(1)
+  await expect(modeShell.locator(".shell-transport")).toHaveCount(1)
+  await expect(modeShell.getByRole("button", { name: "Play", exact: true })).toHaveCount(1)
+  await expect(modeShell.getByRole("button", { name: "Stop", exact: true })).toHaveCount(1)
+  await expect(page.locator('.learning-mode-surface button[aria-label="Play"]')).toHaveCount(0)
+  await expect(page.locator('.learning-mode-surface button[aria-label="Stop"]')).toHaveCount(0)
   await expect(page.locator(".learning-mode-surface .learning-mode-switch")).toHaveCount(0)
   await expect(page.locator(".lesson-setup")).not.toContainText(/LESSON \d/)
   await expect(page.getByRole("button", { name: "TAB MODE" })).toHaveAttribute("aria-pressed", "true")
@@ -1949,7 +1952,7 @@ test("Studio contains its timeline and exposes touch-sized controls on a phone",
         bounds(".magic-dock"),
         bounds(".studio-footer")
       ],
-      play: bounds('.transport button[aria-label="Play"]'),
+      play: bounds('.shell-transport button[aria-label="Play"]'),
       stageGuide: bounds(".karaoke-setup button:last-child"),
       timeline: {
         clientWidth: scrollArea.clientWidth,
