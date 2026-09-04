@@ -1,6 +1,7 @@
 import { readFile } from "node:fs/promises"
 
 const files = [
+  "src/studio/studio-theme.css",
   "src/studio/studio.css",
   "src/studio/DawTimeline.tsx",
   "src/studio/Studio.ts",
@@ -13,7 +14,7 @@ const sources = new Map(
   )
 )
 
-const css = sources.get("src/studio/studio.css")
+const css = sources.get("src/studio/studio-theme.css")
 const timeline = sources.get("src/studio/DawTimeline.tsx")
 const studio = sources.get("src/studio/Studio.ts")
 const song = sources.get("src/studio/songs/korobeiniki.generated.ts")

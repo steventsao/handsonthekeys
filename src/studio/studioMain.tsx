@@ -1,5 +1,6 @@
 import { createRoot } from "react-dom/client"
 import { InstrumentLearningApp } from "./InstrumentLearningApp.tsx"
+import "./studio-theme.css"
 import "./studio.css"
 import "./instrument-learning.css"
 

@@ -2973,6 +2973,41 @@ test("Studio keeps its Logic-inspired dark palette and reserves text cursors for
   expect(audit.prompt).toEqual({ cursor: "text", userSelect: "text" })
   expect(audit.action.cursor).toBe("pointer")
   expect(audit.editor).toEqual({ cursor: "default", userSelect: "none" })
+
+  await page.getByRole("button", { name: "SESSION MODE" }).click()
+  await expect(page.getByTestId("session-mode")).toBeVisible()
+  const sessionTheme = await page.evaluate(() => {
+    const rootStyle = getComputedStyle(document.documentElement)
+    const styleOf = (selector: string) => {
+      const element = document.querySelector(selector)
+      if (element === null) throw new Error(`Missing ${selector}`)
+      return getComputedStyle(element)
+    }
+    return {
+      tokens: {
+        background: rootStyle.getPropertyValue("--studio-bg").trim(),
+        panel: rootStyle.getPropertyValue("--studio-panel").trim(),
+        accent: rootStyle.getPropertyValue("--studio-accent").trim()
+      },
+      shellBackground: styleOf(".session-shell").backgroundColor,
+      stageBackground: styleOf(".session-stage").backgroundColor,
+      cardBackground: styleOf(".session-instrument-card").backgroundColor,
+      cardAccent: styleOf(".session-instrument-card").getPropertyValue("--session-card-accent").trim(),
+      metronomeBackground: styleOf(".session-metronome-toggle").backgroundColor
+    }
+  })
+  expect(sessionTheme).toEqual({
+    tokens: {
+      background: "#17191d",
+      panel: "#202328",
+      accent: "#58a6ff"
+    },
+    shellBackground: "rgb(23, 25, 29)",
+    stageBackground: "rgb(23, 25, 29)",
+    cardBackground: "rgb(32, 35, 40)",
+    cardAccent: "#58a6ff",
+    metronomeBackground: "rgb(52, 55, 61)"
+  })
 })
 
 test("WebMCP stages, applies, and undoes a visible alternate take", async ({ page }) => {

@@ -229,7 +229,7 @@
 .session-shell {
   min-width: 320px;
   overflow: auto;
-  background: #b9b7af;
+  background: var(--studio-bg);
 }
 
 .session-stage {
@@ -242,8 +242,8 @@
   padding: clamp(1rem, 2.6vw, 2.4rem);
   overflow: auto;
   background:
-    linear-gradient(rgba(255, 255, 255, 0.18) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.12) 1px, transparent 1px), #b9b7af;
+    linear-gradient(var(--studio-grid-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--studio-grid-line) 1px, transparent 1px), var(--studio-bg);
   background-size: 2.5rem 2.5rem;
 }
 
@@ -261,13 +261,13 @@
   grid-template-columns: auto auto;
   align-items: baseline;
   gap: 0.2rem 0.75rem;
-  color: #242421;
+  color: var(--studio-text);
   text-align: right;
 }
 
 .session-project-identity span,
 .session-project-identity small {
-  color: #68665f;
+  color: var(--studio-faint);
   font-size: 0.55rem;
   font-weight: 900;
   letter-spacing: 0.12em;
@@ -294,18 +294,18 @@
 }
 
 .session-instrument-card {
-  --session-card-accent: #e4d469;
+  --session-card-accent: var(--studio-accent);
   position: relative;
   display: grid;
   min-width: 0;
   min-height: 20rem;
   grid-template-rows: auto minmax(10rem, 1fr) auto auto;
   overflow: hidden;
-  border: 1px solid #5c5b56;
+  border: 1px solid var(--studio-line);
   border-radius: 0.7rem;
-  background: #2a2a27;
-  box-shadow: 0 0.7rem 1.8rem rgba(42, 40, 35, 0.14);
-  color: #f3f1eb;
+  background: var(--studio-panel);
+  box-shadow: 0 0.7rem 1.8rem var(--studio-shadow);
+  color: var(--studio-text);
   filter: grayscale(0.82);
   opacity: 0.58;
   transition:
@@ -314,14 +314,6 @@
     filter 160ms ease,
     opacity 160ms ease,
     transform 160ms ease;
-}
-
-.session-instrument-card[data-instrument="drums"] {
-  --session-card-accent: #ef9f59;
-}
-
-.session-instrument-card[data-instrument="metronome"] {
-  --session-card-accent: #ef6354;
 }
 
 .session-instrument-card[data-activity="ready"] {
@@ -336,7 +328,7 @@
   border-color: var(--session-card-accent);
   box-shadow:
     0 0 0 2px color-mix(in srgb, var(--session-card-accent) 36%, transparent),
-    0 1rem 2.4rem rgba(42, 40, 35, 0.3);
+    0 1rem 2.4rem var(--studio-shadow);
   filter: none;
   opacity: 1;
   transform: translateY(-0.2rem);
@@ -349,12 +341,12 @@
   gap: 0.65rem;
   min-height: 3.3rem;
   padding: 0 0.9rem;
-  border-bottom: 1px solid #494945;
-  background: #222220;
+  border-bottom: 1px solid var(--studio-line);
+  background: var(--studio-panel-raised);
 }
 
 .session-instrument-card > header span {
-  color: #8e8c84;
+  color: var(--studio-faint);
   font-size: 0.58rem;
   font-variant-numeric: tabular-nums;
   font-weight: 900;
@@ -375,7 +367,7 @@
   width: 0.62rem;
   height: 0.62rem;
   border-radius: 50%;
-  background: #62615c;
+  background: var(--studio-faint);
 }
 
 .session-instrument-card[data-playing-now="true"] > header i {
@@ -388,7 +380,7 @@
   overflow: hidden;
   background:
     radial-gradient(circle at 50% 38%, rgba(255, 255, 255, 0.08), transparent 58%),
-    linear-gradient(145deg, #353531, #232321);
+    linear-gradient(145deg, var(--studio-panel-high), var(--studio-bg));
 }
 
 .session-three-canvas {
@@ -520,7 +512,7 @@
   display: grid;
   gap: 0.18rem;
   padding: 0.85rem 0.9rem 0.7rem;
-  border-top: 1px solid #44443f;
+  border-top: 1px solid var(--studio-line);
 }
 
 .session-instrument-state strong {
@@ -533,7 +525,7 @@
 
 .session-instrument-state span {
   overflow: hidden;
-  color: #b7b4ab;
+  color: var(--studio-muted);
   font-size: 0.66rem;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -546,12 +538,12 @@
   gap: 0.5rem;
   min-height: 2.8rem;
   padding: 0.55rem 0.9rem;
-  border-top: 1px solid #44443f;
-  background: #20201e;
+  border-top: 1px solid var(--studio-line);
+  background: var(--studio-panel-raised);
 }
 
 .session-instrument-card > footer span {
-  color: #77766f;
+  color: var(--studio-faint);
   font-size: 0.52rem;
   font-weight: 900;
   letter-spacing: 0.1em;
@@ -559,7 +551,7 @@
 
 .session-instrument-card > footer strong {
   overflow: hidden;
-  color: #c9c6bd;
+  color: var(--studio-muted);
   font-size: 0.62rem;
   font-variant-numeric: tabular-nums;
   font-weight: 760;
@@ -577,9 +569,10 @@
   gap: 1rem;
   padding: 0.75rem;
   box-sizing: border-box;
-  border: 1px solid #77756e;
+  border: 1px solid var(--studio-line);
   border-radius: 0.55rem;
-  background: rgba(205, 202, 193, 0.8);
+  background: color-mix(in srgb, var(--studio-panel-raised) 92%, transparent);
+  box-shadow: 0 0.7rem 1.8rem var(--studio-shadow);
 }
 
 .session-beat-panel {
@@ -600,7 +593,7 @@
 }
 
 .session-beat-readout strong {
-  color: #1c1c1b;
+  color: var(--studio-text);
   font-size: 2.1rem;
   font-weight: 540;
   letter-spacing: -0.06em;
@@ -626,8 +619,8 @@
   width: 1.8rem;
   height: 1.8rem;
   place-items: center;
-  border-bottom: 2px solid #8a877f;
-  color: #625f58;
+  border-bottom: 2px solid var(--studio-line-strong);
+  color: var(--studio-muted);
   font-size: 0.7rem;
   font-variant-numeric: tabular-nums;
   font-weight: 900;
@@ -636,8 +629,8 @@
 
 .session-beat-strip span.active,
 .session-beat-strip span.active[data-downbeat="true"] {
-  border-color: #cf3f31;
-  color: #171716;
+  border-color: var(--studio-accent);
+  color: var(--studio-accent);
 }
 
 .session-controls {
@@ -653,13 +646,13 @@
   min-height: 3rem;
   align-content: center;
   gap: 0.12rem;
-  border-left: 1px solid #8b8981;
+  border-left: 1px solid var(--studio-line);
   padding-left: 0.65rem;
 }
 
 .session-tempo > span:first-child,
 .session-meter > span {
-  color: #625f58;
+  color: var(--studio-faint);
   font-size: 0.56rem;
   font-weight: 900;
   letter-spacing: 0.14em;
@@ -671,7 +664,7 @@
 }
 
 .session-tempo > small {
-  color: #625f58;
+  color: var(--studio-muted);
   font-size: 0.58rem;
   font-variant-numeric: tabular-nums;
   font-weight: 850;
@@ -684,18 +677,18 @@
   min-height: 2.75rem;
   box-sizing: border-box;
   border: 0;
-  border-bottom: 1px solid #85827a;
+  border-bottom: 1px solid var(--studio-line-strong);
   border-radius: 0;
   outline: 0;
   background: transparent;
-  color: #171716;
+  color: var(--studio-text);
   font-size: 1.35rem;
   font-variant-numeric: tabular-nums;
   font-weight: 620;
 }
 
 .session-tempo input:focus-visible {
-  border-color: #cf3f31;
+  border-color: var(--studio-accent);
   box-shadow: none;
 }
 
@@ -704,7 +697,7 @@
 }
 
 .session-meter strong {
-  color: #171716;
+  color: var(--studio-text);
   font-size: 1.15rem;
   font-variant-numeric: tabular-nums;
   font-weight: 620;
@@ -717,22 +710,23 @@
   place-items: center;
   grid-template-columns: auto auto;
   gap: 0.45rem;
-  border: 1px solid #171716;
+  border: 1px solid var(--studio-line);
   border-radius: 0.35rem;
-  background: #cf3f31;
+  background: var(--studio-panel-high);
   box-shadow: none;
-  color: #fff;
+  color: var(--studio-text);
 }
 
 .session-metronome-toggle:focus-visible {
-  outline: 2px solid #171716;
+  outline: 2px solid var(--studio-accent);
   outline-offset: 0.25rem;
 }
 
 .session-metronome-toggle.running {
-  border-color: #171716;
-  background: #171716;
-  box-shadow: none;
+  border-color: color-mix(in srgb, var(--studio-accent) 72%, transparent);
+  background: color-mix(in srgb, var(--studio-accent) 18%, var(--studio-panel-high));
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--studio-accent) 22%, transparent);
+  color: var(--studio-accent);
 }
 
 .session-metronome-toggle > span {

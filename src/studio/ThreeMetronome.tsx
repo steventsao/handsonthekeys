@@ -87,6 +87,8 @@ export const ThreeMetronome = ({ running, bpm, meter, sequence }: ThreeMetronome
     if (canvas === null) return
     const host = canvas.parentElement
     if (host === null) return
+    const sharedAccent = getComputedStyle(document.documentElement).getPropertyValue("--studio-accent").trim()
+    const accentColor = new THREE.Color(sharedAccent.length > 0 ? sharedAccent : "#58a6ff")
 
     let renderer: THREE.WebGLRenderer
     try {
@@ -180,7 +182,7 @@ export const ThreeMetronome = ({ running, bpm, meter, sequence }: ThreeMetronome
 
     const weight = new THREE.Mesh(
       new THREE.BoxGeometry(0.4, 0.44, 0.2),
-      new THREE.MeshStandardMaterial({ color: 0xd54a38, metalness: 0.08, roughness: 0.72 })
+      new THREE.MeshStandardMaterial({ color: accentColor, metalness: 0.08, roughness: 0.72 })
     )
     weight.position.z = 0.08
     weight.castShadow = true

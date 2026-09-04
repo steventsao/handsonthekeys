@@ -1,0 +1,26 @@
+:root {
+  color: #f1f3f5;
+  background: #17191d;
+  font-family: Inter, "SF Pro Display", "Helvetica Neue", Arial, sans-serif;
+  font-synthesis: none;
+  color-scheme: dark;
+  --studio-bg: #17191d;
+  --studio-panel: #202328;
+  --studio-panel-raised: #2a2d32;
+  --studio-panel-high: #34373d;
+  --studio-line: rgba(255, 255, 255, 0.13);
+  --studio-line-strong: rgba(255, 255, 255, 0.22);
+  --studio-text: #f1f3f5;
+  --studio-muted: #a7abb1;
+  --studio-faint: #767b83;
+  --studio-accent: #58a6ff;
+  --studio-accent-strong: #2f8ef4;
+  --studio-green: #63c766;
+  --studio-red: #ff625f;
+  --studio-yellow: #f3c84b;
+  --studio-orange: #f5a44b;
+  --studio-purple: #b884ff;
+  --studio-cyan: #4cc7d8;
+  --studio-grid-line: rgba(255, 255, 255, 0.018);
+  --studio-shadow: rgba(0, 0, 0, 0.38);
+}
