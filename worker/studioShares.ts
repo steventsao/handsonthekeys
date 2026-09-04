@@ -32,6 +32,19 @@ const MAX_SHARED_NOTES = 20_000
 const MAX_ACTIVE_SHARES = 1_000
 const MAX_SHARES_PER_MINUTE = 30
 
+const ensureStudioShareSchema = async (db: D1Database): Promise<void> => {
+  await db.batch([
+    db.prepare(
+      "CREATE TABLE IF NOT EXISTS studio_shares (id TEXT PRIMARY KEY NOT NULL, request_id TEXT NOT NULL, payload_hash TEXT NOT NULL, payload_json TEXT NOT NULL, created_at INTEGER NOT NULL, expires_at INTEGER NOT NULL)"
+    ),
+    db.prepare(
+      "CREATE UNIQUE INDEX IF NOT EXISTS studio_shares_request_id_unique ON studio_shares (request_id)"
+    ),
+    db.prepare("CREATE INDEX IF NOT EXISTS studio_shares_expires_idx ON studio_shares (expires_at)"),
+    db.prepare("CREATE INDEX IF NOT EXISTS studio_shares_created_idx ON studio_shares (created_at)")
+  ])
+}
+
 const json = (value: unknown, status = 200): Response =>
   Response.json(value, {
     status,
@@ -230,6 +243,7 @@ export const handleStudioShareApi = async (
 ): Promise<Response | null> => {
   if (!url.pathname.startsWith("/api/studio-shares")) return null
   try {
+    await ensureStudioShareSchema(db)
     if (request.method === "POST" && url.pathname === "/api/studio-shares") {
       return await createShare(request, db)
     }

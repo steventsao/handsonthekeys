@@ -15,7 +15,7 @@ const d1Databases = hostingConfig.d1
   ? [
       {
         binding: hostingConfig.d1,
-        database_name: "hex-relay-webmcp",
+        database_name: "hands-on-the-keys",
         database_id: CLOUDFLARE_DATABASE_ID
       }
     ]
@@ -56,10 +56,6 @@ export default defineConfig({
         rollupOptions: {
           input: {
             main: "index.html",
-            slop: "slop.html",
-            cell: "cell.html",
-            driftline: "driftline.html",
-            cook: "cook.html",
             karaoke: "karaoke.html"
           }
         }

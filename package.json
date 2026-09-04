@@ -1,9 +1,8 @@
 {
-  "name": "webmcp-challenge",
+  "name": "hands-on-the-keys",
   "version": "0.1.0",
-  "description": "A shared visual prompt queue with four Effect-powered WebMCP tools",
+  "description": "A browser-native music session assistant controlled through WebMCP",
   "type": "module",
-  "sideEffects": false,
   "packageManager": "pnpm@9.5.0",
   "scripts": {
     "dev": "vite",
@@ -15,7 +14,6 @@
     "check": "pnpm audit:public && pnpm format:check && pnpm check:studio-brand && pnpm lint && pnpm typecheck && pnpm test:coverage && pnpm build",
     "check:studio-brand": "node scripts/check-studio-brand.mjs",
     "e2e": "playwright test",
-    "smoke:relay": "node scripts/smoke-relay.mjs",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "lint": "oxlint src test e2e --deny-warnings",
@@ -25,7 +23,8 @@
   },
   "keywords": [
     "effect",
-    "game",
+    "music",
+    "audio",
     "mcp",
     "webmcp",
     "browser"
@@ -40,21 +39,16 @@
     "@dawcore/midi": "0.0.4",
     "@dawcore/transport": "0.0.14",
     "@effect/platform-browser": "github:steventsao/effect#4028f0e90e3d31951da8f9e59ec7e83ee32ca554&path:/packages/platform/browser",
-    "@effect/sql-d1": "4.0.0-rc.112",
     "@waveform-playlist/core": "12.6.1",
     "@waveform-playlist/engine": "13.6.0",
-    "@waveform-playlist/playout": "12.5.4",
     "@waveform-playlist/worklets": "13.0.0",
     "drizzle-orm": "0.45.2",
+    "effect": "4.0.0-rc.112",
     "react": "19.2.8",
     "react-dom": "19.2.8",
     "three": "^0.185.1",
-    "tone": "15.1.22",
     "vexflow": "5.0.0",
     "xstate": "^5.32.6"
-  },
-  "peerDependencies": {
-    "effect": ">=4.0.0-rc.112 <5"
   },
   "pnpm": {
     "peerDependencyRules": {
@@ -63,12 +57,7 @@
       }
     }
   },
-  "publishConfig": {
-    "access": "public",
-    "provenance": true
-  },
   "devDependencies": {
-    "@arethetypeswrong/cli": "^0.18.5",
     "@cloudflare/vite-plugin": "1.37.1",
     "@cloudflare/workers-types": "4.20260515.1",
     "@effect/vitest": "4.0.0-rc.112",
@@ -80,10 +69,8 @@
     "@vitejs/plugin-react": "6.1.0",
     "@vitest/coverage-v8": "4.1.11",
     "drizzle-kit": "0.31.10",
-    "effect": "4.0.0-rc.112",
     "oxlint": "^1.80.0",
     "prettier": "^3.9.6",
-    "publint": "^0.3.24",
     "typescript": "^7.0.2",
     "vite": "8.2.2",
     "vitest": "^4.1.11",
