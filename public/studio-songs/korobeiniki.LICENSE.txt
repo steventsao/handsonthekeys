@@ -1,0 +1,18 @@
+Korobeiniki // Arcade Pop — source MIDI attribution
+
+Source arrangement: “Tetris forever” by rocavaco
+Source page: https://ccmixter.org/files/rocavaco/44418
+License: Creative Commons Attribution 3.0
+License text: https://creativecommons.org/licenses/by/3.0/
+Downloaded source: rocavaco_-_Tetris_forever.mid
+Bundled filename: korobeiniki.mid
+SHA-256: 84c71f223e62419ecbbb58b4a9a114ded11ab5c7d4ec394b4f97c20815c0b67e
+
+The source author identifies the underlying traditional Russian folk melody
+“Korobeiniki” as public domain. The MIDI arrangement is separately licensed
+under CC BY 3.0 and is attributed above.
+
+Signal Studio changes: track labels and General MIDI programs were normalized,
+the single-tempo session was set to 138 BPM, and an original pop drum part was
+added. The MIDI note events are compiled into a static browser session for
+agent-readable editing; the unmodified source MIDI remains bundled alongside it.

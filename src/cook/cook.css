@@ -1,0 +1,418 @@
+@import url("https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Work+Sans:wght@400;500;600;700&display=swap");
+
+:root {
+  color: #2c1c12;
+  background: #faf1e3;
+  font-family: "Work Sans", system-ui, sans-serif;
+  font-synthesis: none;
+  --red: #c0392b;
+  --red-deep: #96281b;
+  --cream: #faf1e3;
+  --cream-dark: #f3e4cd;
+  --ink: #2c1c12;
+  --muted: #8a6f5c;
+  --line: rgba(120, 74, 44, 0.25);
+  --mono: "DM Mono", monospace;
+}
+
+* {
+  box-sizing: border-box;
+}
+html {
+  scroll-behavior: smooth;
+}
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  background: radial-gradient(circle at 15% 0%, rgba(192, 57, 43, 0.08), transparent 45%), var(--cream);
+}
+button,
+a {
+  font: inherit;
+}
+button {
+  color: inherit;
+  cursor: pointer;
+}
+
+.cook-shell {
+  width: min(1180px, 100%);
+  margin: auto;
+  min-height: 100vh;
+  border-inline: 1px solid var(--line);
+  display: flex;
+  flex-direction: column;
+}
+
+.cook-topbar {
+  padding: 18px 28px;
+  border-bottom: 1px solid var(--line);
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 16px;
+}
+.cook-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--red-deep);
+}
+.cook-brand-mark {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--red);
+  color: var(--cream);
+  font-size: 18px;
+}
+.view-tabs {
+  display: flex;
+  gap: 6px;
+}
+.view-tabs button {
+  border: 1px solid var(--line);
+  background: transparent;
+  padding: 8px 18px;
+  border-radius: 999px;
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  color: var(--muted);
+}
+.view-tabs button.active {
+  background: var(--red);
+  border-color: var(--red);
+  color: var(--cream);
+}
+.cook-topbar-right {
+  display: flex;
+  justify-content: flex-end;
+}
+.cook-reset {
+  border: 1px solid var(--line);
+  background: transparent;
+  border-radius: 999px;
+  padding: 8px 18px;
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  color: var(--muted);
+}
+.cook-reset:hover {
+  color: var(--red-deep);
+  border-color: var(--red);
+}
+
+.dish-hero {
+  padding: 48px 28px 32px;
+  border-bottom: 1px solid var(--line);
+}
+.dish-eyebrow {
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 0.2em;
+  color: var(--red);
+  margin: 0 0 10px;
+}
+.dish-hero h1 {
+  margin: 0;
+  font-size: clamp(34px, 5vw, 56px);
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+}
+.dish-chef {
+  margin: 10px 0 0;
+  color: var(--muted);
+  font-style: italic;
+}
+.runtime-badge {
+  margin-top: 18px;
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  color: var(--muted);
+}
+.runtime-badge span {
+  color: var(--red);
+}
+
+.cook-body {
+  display: grid;
+  grid-template-columns: 1fr 300px;
+  gap: 24px;
+  padding: 28px;
+  align-items: start;
+}
+@media (max-width: 900px) {
+  .cook-body {
+    grid-template-columns: 1fr;
+  }
+}
+
+.dish-blurb {
+  font-size: 18px;
+  line-height: 1.6;
+  color: var(--ink);
+  margin: 0 0 24px;
+}
+.overview-steps {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 10px;
+}
+.overview-steps li {
+  display: grid;
+  grid-template-columns: 44px 1fr auto;
+  align-items: center;
+  gap: 12px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 14px 18px;
+  background: #fffdf8;
+}
+.overview-steps li.current {
+  border-color: var(--red);
+  box-shadow: 0 0 0 1px var(--red);
+}
+.overview-steps span {
+  font-family: var(--mono);
+  color: var(--red);
+}
+.overview-steps p {
+  margin: 0;
+  font-weight: 600;
+}
+.overview-steps b {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.ingredient-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 10px;
+}
+.ingredient-list label {
+  display: grid;
+  grid-template-columns: auto 1fr auto auto;
+  align-items: baseline;
+  gap: 14px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 14px 18px;
+  background: #fffdf8;
+  cursor: pointer;
+}
+.ingredient-list label.checked .ingredient-name,
+.ingredient-list label.checked .ingredient-amount {
+  text-decoration: line-through;
+  color: var(--muted);
+}
+.ingredient-list input {
+  accent-color: var(--red);
+  width: 16px;
+  height: 16px;
+}
+.ingredient-name {
+  font-weight: 600;
+}
+.ingredient-amount {
+  font-family: var(--mono);
+  font-size: 13px;
+  color: var(--red-deep);
+}
+.ingredient-list em {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.step-card {
+  --zoom: 1;
+  border: 1px solid var(--red);
+  border-radius: 18px;
+  background: #fffdf8;
+  padding: 32px;
+}
+.step-card-head {
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--mono);
+  font-size: calc(12px * var(--zoom));
+  letter-spacing: 0.16em;
+  color: var(--red);
+  margin-bottom: 14px;
+}
+.step-card h2 {
+  margin: 0 0 14px;
+  font-size: calc(30px * var(--zoom));
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+}
+.step-detail {
+  margin: 0;
+  font-size: calc(17px * var(--zoom));
+  line-height: 1.65;
+  color: #4a3626;
+}
+.step-card-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 26px;
+}
+.step-card-actions button {
+  border: 1px solid var(--line);
+  background: transparent;
+  border-radius: 999px;
+  padding: 10px 20px;
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 0.1em;
+}
+.step-card-actions button:hover {
+  border-color: var(--red);
+  color: var(--red-deep);
+}
+.step-card-actions button.primary {
+  background: var(--red);
+  border-color: var(--red);
+  color: var(--cream);
+}
+
+.cook-side {
+  display: grid;
+  gap: 16px;
+}
+.side-panel {
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: #fffdf8;
+  padding: 16px 18px;
+}
+.side-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  color: var(--muted);
+}
+.side-heading strong {
+  color: var(--red-deep);
+}
+.zoom-controls {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+.zoom-controls button {
+  flex: 1;
+  border: 1px solid var(--line);
+  background: transparent;
+  border-radius: 8px;
+  padding: 8px 0;
+  font-family: var(--mono);
+  font-size: 13px;
+}
+.zoom-controls button:hover {
+  border-color: var(--red);
+  color: var(--red-deep);
+}
+.timer-chip p {
+  margin: 10px 0 0;
+  font-size: 14px;
+  color: var(--ink);
+}
+.timer-chip.done {
+  border-color: var(--red);
+  animation: timer-flash 0.9s ease-in-out 3;
+}
+@keyframes timer-flash {
+  50% {
+    background: #fbe3dc;
+  }
+}
+.mic-toggle {
+  width: 100%;
+  margin-top: 12px;
+  border: 1px solid var(--red);
+  background: transparent;
+  color: var(--red-deep);
+  border-radius: 999px;
+  padding: 10px 0;
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 0.1em;
+}
+.mic-toggle.listening {
+  background: var(--red);
+  color: var(--cream);
+}
+.mic-toggle:disabled {
+  opacity: 0.5;
+  cursor: wait;
+}
+.transcript {
+  margin: 12px 0 0;
+  font-size: 14px;
+  font-style: italic;
+  color: #4a3626;
+  min-height: 20px;
+}
+.voice-hints {
+  margin: 10px 0 0;
+  font-family: var(--mono);
+  font-size: 11px;
+  line-height: 1.6;
+  color: var(--muted);
+}
+.cook-error {
+  border: 1px solid var(--red);
+  border-radius: 12px;
+  background: #fbe3dc;
+  color: var(--red-deep);
+  padding: 12px 16px;
+  font-size: 14px;
+}
+
+.cook-log {
+  margin-top: auto;
+  border-top: 1px solid var(--line);
+  padding: 24px 28px 32px;
+}
+.cook-log-grid {
+  display: grid;
+  gap: 8px;
+  margin-top: 14px;
+}
+.cook-log-entry {
+  display: grid;
+  grid-template-columns: 34px 64px 1fr;
+  gap: 12px;
+  align-items: baseline;
+  border-bottom: 1px dashed var(--line);
+  padding-bottom: 8px;
+  font-size: 14px;
+}
+.cook-log-entry span,
+.cook-log-entry b {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--red);
+}
+.cook-log-entry p {
+  margin: 0;
+  color: #4a3626;
+}

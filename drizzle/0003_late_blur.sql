@@ -1,0 +1,1 @@
+CREATE INDEX `studio_shares_created_idx` ON `studio_shares` (`created_at`);

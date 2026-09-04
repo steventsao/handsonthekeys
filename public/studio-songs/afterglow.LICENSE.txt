@@ -1,0 +1,16 @@
+AFTERGLOW CALLING // Y2K POP
+
+Copyright 2026 Signal Studio project contributors.
+
+This song package is an original hackathon demonstration created for Signal Studio.
+It includes the composition, English lyrics, melody, multitrack MIDI arrangement,
+karaoke timing, and the browser-rendered instrumental recording.
+
+No third-party song, lyric sheet, tablature, MIDI transcription, master recording,
+performer voice, album artwork, or music video was copied into this package. Genre
+conventions such as a late-1990s/early-2000s pop tempo, clean guitar arpeggios,
+electric keys, pads, and a chorus lift are not source assets.
+
+The package is distributed with the Signal Studio source solely as an original
+project-authored demonstration. Third-party reuse requires permission from the
+copyright owner.
